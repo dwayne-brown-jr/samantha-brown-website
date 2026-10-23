@@ -65,6 +65,15 @@ npm run build        # must pass before publishing
 - Every link must go somewhere real (no `href="#"`). Nothing may be invisible until the visitor scrolls.
 - Check phone (390 wide) as carefully as desktop.
 
+## The UGC page (bysamanthabrown.com/ugc)
+
+- Sam's portfolio for brands, as a UGC video creator. **Unlisted on purpose:** nothing on the main site links to it, and it must stay that way unless Sam asks. She shares the link herself (socials, pitches).
+- It's a real page in this app: `src/pages/UgcPage.jsx` + `src/ugc.css` (builds on `home.css`). It's the only page with its own path (`/ugc`) instead of a hash, so on it `#work`, `#rates`, `#contact` etc. are in-page jump links. Routing for that is in `src/App.jsx`. It has its own header (`UgcHeader`) and a fixed "work with me" bar on phones.
+- All its content is CMS keys starting `ugc.` in `contentSchema.js`, edited in the site editor like the home page. Videos and cover images are uploaded per card in the editor (`src/cms/EditableMedia.jsx`): covers are shrunk before upload, videos must be under 50 MB (MP4 recommended), and every frame is a fixed 9:16 crop, so any size fits.
+- **Blank stays hidden:** a work card without media, a rate without a price, a fact without a value, an empty about section are all invisible to visitors. Keep that behaviour.
+- **Honesty rules — never break these:** every video carries a "concept" (spec work) or "client work" badge; never invent brands, clients, rates, results or metrics; there is deliberately no results/metrics section until Sam has real numbers a brand will confirm.
+- The old standalone Next.js version (`Sam-UGC-Portfolio-Site`, and PR #1 on GitHub) is superseded by this page.
+
 ## Things that live outside this code
 
 - **Newsletter (Cabana Club):** the signup form is Flodesk's embed (form id `69a492cf680779e5364b6ffe`); its wording and fields are changed in Flodesk. `home.css` only restyles it — never replace it with a homemade form (signups might stop arriving).

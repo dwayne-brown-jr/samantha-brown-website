@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { C } from "./theme";
 import { useScrollY } from "./hooks";
 import { useCMS } from "./cms/useContent";
@@ -14,15 +14,20 @@ import ServiceDetailPage from "./pages/ServiceDetailPage";
 import AboutPage from "./pages/AboutPage";
 import ResourcesPage from "./pages/ResourcesPage";
 import ContactPage from "./pages/ContactPage";
+import UgcPage, { UgcHeader } from "./pages/UgcPage";
 
 export default function App() {
-  // URL-aware routing: read initial page from hash, sync with browser history
-  const getPageFromHash = () => {
+  // URL-aware routing: pages live in the hash (/#services), except the unlisted
+  // UGC page, which has its own path (/ugc) so its #hashes can jump between sections.
+  const getPageFromLocation = () => {
+    if (/^\/ugc\/?$/.test(window.location.pathname)) return "ugc";
     const hash = window.location.hash.replace("#", "");
     return hash || "home";
   };
 
-  const [page, setPageState] = useState(getPageFromHash);
+  const [page, setPageState] = useState(getPageFromLocation);
+  const pageRef = useRef(page);
+  useEffect(() => { pageRef.current = page; }, [page]);
   const scrollY = useScrollY();
   const { isEditing } = useCMS();
 
@@ -30,14 +35,17 @@ export default function App() {
   const setPage = useCallback((newPage) => {
     if (isEditing) return;
     setPageState(newPage);
-    const hash = newPage === "home" ? "" : `#${newPage}`;
-    window.history.pushState({ page: newPage }, "", `/${hash}`);
+    const url = newPage === "home" ? "/" : newPage === "ugc" ? "/ugc/" : `/#${newPage}`;
+    window.history.pushState({ page: newPage }, "", url);
   }, [isEditing]);
 
   // Listen for browser back/forward buttons
   useEffect(() => {
+    // A #section jump on the UGC page stays on that page, so it keeps its scroll position
     const handlePopState = () => {
-      setPageState(getPageFromHash());
+      const next = getPageFromLocation();
+      if (next === pageRef.current) return;
+      setPageState(next);
       window.scrollTo({ top: 0 });
     };
     window.addEventListener("popstate", handlePopState);
@@ -54,7 +62,14 @@ export default function App() {
     about: <AboutPage setPage={setPage} />,
     resources: <ResourcesPage />,
     contact: <ContactPage />,
+    ugc: <UgcPage />,
   };
+
+  // The UGC page gets its own title when its link is shared
+  useEffect(() => {
+    const siteTitle = "by samantha brown — feel-good systems for life-first businesses";
+    document.title = page === "ugc" ? "samantha brown — ugc video creator, san diego" : siteTitle;
+  }, [page]);
 
   return (
     <>
@@ -102,10 +117,12 @@ export default function App() {
 
       <AdminLoginListener />
       <AdminLoginModal />
-      <Nav page={page} setPage={setPage} scrollY={scrollY} isEditing={isEditing} />
+      {page === "ugc"
+        ? <UgcHeader setPage={setPage} scrollY={scrollY} isEditing={isEditing} />
+        : <Nav page={page} setPage={setPage} scrollY={scrollY} isEditing={isEditing} />}
       <main>{pages[page]}</main>
       <Footer setPage={setPage} isEditing={isEditing} />
-      <BackToTop scrollY={scrollY} />
+      {page !== "ugc" && <BackToTop scrollY={scrollY} />}
       <EditorToolbar />
       <SelectionOverlay />
       <PropertyPanel />

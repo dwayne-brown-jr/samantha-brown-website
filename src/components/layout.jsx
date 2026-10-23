@@ -155,4 +155,4 @@ function BackToTop({ scrollY }) {
   );
 }
 
-export { Nav, Footer, BackToTop };
+export { Nav, Footer, BackToTop, Monogram };
