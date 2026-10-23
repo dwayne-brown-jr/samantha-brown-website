@@ -153,9 +153,9 @@ export const defaultContent = {
   "services.creators.heading": "systems that don't require you to be a different person",
   "services.creators.body": "you didn't start your business to spend hours wrestling with dubsado, notion, or whatever \"game-changing\" tool someone sold you on. you started it because you're really good at what you do. but now your backend is held together with duct tape and desperate energy. that's where i come in.",
   "services.creators.cards": [
-    { num: "01", title: "the brand experience audit", price: "$350", body: "an unbiased look at your current client journey, backend systems, revenue streams, and where things are breaking down. detailed action plan + priority recommendations.", page: "audit", bg: "#F5E6DC" },
-    { num: "02", title: "the brand experience (full implementation)", price: "starting at $1.5k", body: "the \"do it for me\" option. we start with the audit, then i build your entire backend—client onboarding, workflows, automation, templates, email marketing, the whole thing.", page: "implementation", bg: "#D6E8EC" },
-    { num: "03", title: "fractional consulting", price: "limited spots", body: "ongoing support without the agency retainer. think: a business bestie who actually knows what they're talking about. monthly strategy sessions + async access.", page: "fractional", bg: "#EDE8F4" },
+    { num: "01", title: "the brand experience audit", price: "$350", body: "an unbiased look at your current client journey, backend systems, revenue streams, and where things are breaking down. detailed action plan + priority recommendations.", page: "audit", bg: "#F5E6DC", tag: "the deep dive", cta: "start with the audit" },
+    { num: "02", title: "the brand experience (full implementation)", price: "starting at $1.5k", body: "the \"do it for me\" option. we start with the audit, then i build your entire backend—client onboarding, workflows, automation, templates, email marketing, the whole thing.", page: "implementation", bg: "#D6E8EC", tag: "most hands-off", cta: "talk about a build" },
+    { num: "03", title: "fractional consulting", price: "limited spots", body: "ongoing support without the agency retainer. think: a business bestie who actually knows what they're talking about. monthly strategy sessions + async access.", page: "fractional", bg: "#EDE8F4", tag: "ongoing", cta: "ask about a spot" },
   ],
   "services.creators.fit.perfect": ["have an established community (even if it's small but mighty)", "are ready to expand beyond your current revenue streams", "want to build an email list that actually converts", "need backend systems that can handle growth", "value strategic support over just \"here's another template\""],
   "services.creators.fit.notFit": ["are just getting started (like, first 10 followers started)", "want someone to tell you exactly what to do without collaboration", "aren't ready to invest in your business infrastructure"],
@@ -448,8 +448,18 @@ export const defaultContent = {
   "blocks.about.beliefs": [],
   "blocks.resources.newsletter": [],
 
+  // ─── HOME (restyle): text the new layout adds ───
+  "home.hero.kicker": "feel-good systems for life-first businesses",
+  "home.welcome.slip.grantedLabel": "granted to:",
+  "home.welcome.slip.grantedValue": "you.",
+  "home.welcome.slip.forLabel": "for:",
+  "home.welcome.slip.forValue": "building a business that fits your life.",
+  "home.about.photoCaption": "san diego, most days",
+
   // ─── SECTION ORDER ───
   "home.sectionOrder": ["hero", "marquee", "welcome", "coreValues", "systems", "pathCards", "stats", "socialProof", "testimonials", "newsletter", "closing", "closingMarquee"],
+  // Restyled home uses its own order so the old layout's saved order stays intact
+  "home.layout.sectionOrder": ["hero", "marquee", "welcome", "systems", "services", "about", "stats", "values", "testimonials", "newsletter"],
 
   // ─── SECTION VISIBILITY ───
   "visibility.home.problem": true,

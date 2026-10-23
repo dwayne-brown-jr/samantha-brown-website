@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { C, gridBgWhite, gridBgSand, gridBgOcean } from "../theme";
+import { pageHref } from "../links";
 import { useInView } from "../hooks";
 import { useCMS, useContent } from "../cms/useContent";
 import { EditableText, EditableArrayText, EditableArrayString } from "../cms/EditableText";
@@ -380,8 +381,25 @@ function Btn({ children, variant = "primary", onClick, style = {} }) {
   );
 }
 
+/* ── A real link to a page or URL; in-app pages switch without a reload ── */
+function PageLink({ to, nav, onNavigate, children, ...rest }) {
+  const isUrl = /^(https?:|mailto:)/.test(to || "");
+  const onClick = (e) => {
+    if (isUrl || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+    e.preventDefault();
+    if (onNavigate) onNavigate();
+    else nav?.(to || "home");
+  };
+  return (
+    <a href={pageHref(to)} onClick={onClick} {...(to?.startsWith("http") ? { target: "_blank", rel: "noopener" } : {})} {...rest}>
+      {children}
+    </a>
+  );
+}
+
 /* ── Editable Button (label + link destination in edit mode) ── */
-function EditableBtn({ contentKey, variant = "primary", defaultLabel = "button", defaultLink = "contact", nav, style = {} }) {
+/* Pass className to render a real link (<a href>) styled by CSS instead of the inline button */
+function EditableBtn({ contentKey, variant = "primary", defaultLabel = "button", defaultLink = "contact", nav, style = {}, className }) {
   const { getContent, updateContent, isEditing } = useCMS();
   const label = getContent(`${contentKey}.label`) ?? defaultLabel;
   const link = getContent(`${contentKey}.link`) ?? defaultLink;
@@ -412,12 +430,21 @@ function EditableBtn({ contentKey, variant = "primary", defaultLabel = "button",
 
   return (
     <>
-      <button onClick={handleClick} style={{ ...variants[variant] || variants.primary, position: "relative", ...style }}>
-        {label}
-        {isEditing && (
-          <span data-editor-panel style={{ fontSize: 10, background: "rgba(255,255,255,0.2)", borderRadius: 8, padding: "2px 6px", marginLeft: 4 }}>✏️</span>
-        )}
-      </button>
+      {className ? (
+        <PageLink to={link} nav={nav} className={className} style={style} {...(isEditing ? { onClick: (e) => { e.preventDefault(); handleClick(); } } : {})}>
+          {label}
+          {isEditing && (
+            <span data-editor-panel style={{ fontSize: 10, background: "rgba(255,255,255,0.2)", borderRadius: 8, padding: "2px 6px", marginLeft: 4 }}>✏️</span>
+          )}
+        </PageLink>
+      ) : (
+        <button onClick={handleClick} style={{ ...variants[variant] || variants.primary, position: "relative", ...style }}>
+          {label}
+          {isEditing && (
+            <span data-editor-panel style={{ fontSize: 10, background: "rgba(255,255,255,0.2)", borderRadius: 8, padding: "2px 6px", marginLeft: 4 }}>✏️</span>
+          )}
+        </button>
+      )}
       {editing && (
         <div data-editor-panel style={{ position: "fixed", top: "50%", left: "50%", transform: "translate(-50%,-50%)", background: "rgba(28,28,28,0.97)", backdropFilter: "blur(16px)", borderRadius: 16, padding: 24, zIndex: 9999, width: "min(440px, 90vw)", boxShadow: "0 24px 64px rgba(0,0,0,0.4)", border: "1px solid rgba(255,255,255,0.08)" }}>
           <p style={{ fontFamily: "'Rubik', sans-serif", fontSize: 13, fontWeight: 700, color: "#fff", marginBottom: 16 }}>Edit button</p>
@@ -817,5 +844,5 @@ export {
   FadeIn, AnimatedCounter, RotatingText, BlinkEmoji, FloatingTag, BubbleTag,
   Marquee, ScriptLabel, HorizontalScroll, Btn, EditableBtn, SectionWrap,
   SectionBgControl, BrandStar, ProcessStep, FAQAccordion, EditableTagList,
-  TwoColFit, PullQuote, NewsletterForm,
+  TwoColFit, PullQuote, NewsletterForm, PageLink,
 };
