@@ -35,7 +35,7 @@ function AboutPage({ setPage }) {
           <div className="sb-about-copy">
             <p className="sb-script"><EditableText contentKey="about.hero.scriptLabel" as="span" /></p>
             <h1><EditableText contentKey="about.hero.title" as="span" /></h1>
-            <p className="sb-hero-script" aria-live="off"><RotatingPhrase phrases={getContent("about.hero.typewriterTraits") || []} /></p>
+            <p className="sb-hero-script" aria-live="off"><RotatingPhrase contentKey="about.hero.typewriterTraits" label="rotating lines" /></p>
             <p className="sb-lede"><EditableText contentKey="about.hero.body" as="span" /></p>
           </div>
         </div>

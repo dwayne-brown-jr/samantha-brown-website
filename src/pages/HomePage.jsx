@@ -88,7 +88,7 @@ function HomePage({ setPage }) {
             <div className="sb-hero-copy">
               <p className="sb-script sb-hero-kicker"><EditableText contentKey="home.hero.kicker" as="span" /></p>
               <h1 style={heroColor ? { color: heroColor } : undefined}><DecoratedText contentKey="home.hero.heading" decorate={emphasizeCaps} /></h1>
-              <p className="sb-hero-script" aria-live="off"><RotatingPhrase phrases={getContent("home.hero.typewriterPhrases") || []} /></p>
+              <p className="sb-hero-script" aria-live="off"><RotatingPhrase contentKey="home.hero.typewriterPhrases" label="rotating lines" /></p>
               <p className="sb-lede"><EditableText contentKey="home.hero.subheading" as="span" /></p>
               <div className="sb-actions">
                 <EditableBtn contentKey="home.hero.ctaPrimary" className="sb-btn sb-btn-solid" defaultLabel="work with me" defaultLink="services" nav={nav} />

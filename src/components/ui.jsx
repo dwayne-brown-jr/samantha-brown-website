@@ -4,6 +4,7 @@ import { pageHref } from "../links";
 import { useCMS, useContent } from "../cms/useContent";
 import { EditableText, EditableArrayText, EditableArrayString } from "../cms/EditableText";
 import { EmojiIcon } from "../icons";
+import { PhraseListEditor } from "../cms/EditablePhrases";
 
 /* ── Floating Tag (angled pill that hangs off image edges) ── */
 const bubbleColorOptions = [
@@ -226,19 +227,31 @@ function DecoratedArrayText({ contentKey, index, field, decorate, as: Tag = "spa
 }
 
 /* The signature moment: the hero script line rewrites itself every 3s (static under reduced motion) */
-function RotatingPhrase({ phrases }) {
+function RotatingPhrase({ phrases: phrasesProp = [], contentKey, label }) {
+  const { isEditing } = useCMS();
+  const { value } = useContent(contentKey || "__none__");
+  const phrases = contentKey ? (Array.isArray(value) ? value.filter(Boolean) : []) : phrasesProp;
   const [step, setStep] = useState(0);
   const [leaving, setLeaving] = useState(false);
 
   useEffect(() => {
-    if (phrases.length < 2 || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    if (isEditing || phrases.length < 2 || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     const timer = setInterval(() => { if (!document.hidden) setLeaving(true); }, 3200);
     return () => clearInterval(timer);
-  }, [phrases.length]);
+  }, [phrases.length, isEditing]);
 
   // The next phrase comes in once the old one has finished sliding out
   const next = () => { if (leaving) { setStep((s) => s + 1); setLeaving(false); } };
 
+  // While editing, hold the first line still and offer the list editor
+  if (isEditing && contentKey) {
+    return (
+      <span className="sb-rotator">
+        <span className="sb-rotator-word">{phrases[0] || "add your rotating lines"}</span>
+        <PhraseListEditor contentKey={contentKey} label={label} />
+      </span>
+    );
+  }
   if (!phrases.length) return null;
   const state = leaving ? " is-out" : step > 0 ? " is-in" : "";
   return (

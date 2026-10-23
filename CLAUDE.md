@@ -54,6 +54,7 @@ npm run build        # must pass before publishing
 - Defaults for every key live in `src/cms/contentSchema.js`. Supabase only stores what Sam has changed; anything she hasn't touched falls back to these defaults.
 - **Adding new text:** add a new key with its default to `contentSchema.js` and render it with an `Editable*` component. Never hardcode visible words that should be editable, and never retype text that already comes from a key.
 - **Never write to the Supabase `content` table directly** (no SQL updates, no scripts). Sam's published edits live there and could be lost. Don't change database tables, storage, or security rules without Sam explicitly asking, and explain the risk first.
+- The rotating script lines (`home.hero.typewriterPhrases`, `about.hero.typewriterTraits`) are lists Sam edits with the "edit rotating lines" button in edit mode (`src/cms/EditablePhrases.jsx`).
 - Home page section order is stored in `home.layout.sectionOrder` (the editor's up/down arrows). Visibility toggles are `visibility.home.*`.
 - Some fields carry formatting hints that the home page renders specially: words typed in CAPS in the hero heading show in italic script; " over " in value titles is set in script; the "tired of" list is one field split on `→`.
 
