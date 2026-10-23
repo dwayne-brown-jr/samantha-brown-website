@@ -1,87 +1,9 @@
-import { useState, useEffect, useRef, useCallback } from "react";
-import { C, gridBgWhite, gridBgSand, gridBgOcean } from "../theme";
+import { useState, useEffect } from "react";
+import { C } from "../theme";
 import { pageHref } from "../links";
-import { useInView } from "../hooks";
 import { useCMS, useContent } from "../cms/useContent";
 import { EditableText, EditableArrayText, EditableArrayString } from "../cms/EditableText";
 import { EmojiIcon } from "../icons";
-
-function FadeIn({ children, delay = 0, y = 28, style = {} }) {
-  const [ref, v] = useInView(0.05);
-  return (
-    <div ref={ref} style={{ opacity: v ? 1 : 0, transform: v ? "translateY(0)" : `translateY(${y}px)`, transition: `opacity 0.7s cubic-bezier(.22,.61,.36,1) ${delay}ms, transform 0.7s cubic-bezier(.22,.61,.36,1) ${delay}ms`, ...style }}>{children}</div>
-  );
-}
-
-/* ── Animated Counter (counts up once on scroll into view) ── */
-function AnimatedCounter({ end, duration = 2000, suffix = "" }) {
-  const [ref, v] = useInView(0.1);
-  const [count, setCount] = useState(0);
-
-  useEffect(() => {
-    if (!v) return;
-
-    const endValue = parseFloat(end);
-    const startTime = Date.now();
-    const animate = () => {
-      const now = Date.now();
-      const progress = Math.min((now - startTime) / duration, 1);
-      const easeOut = 1 - Math.pow(1 - progress, 3);
-      setCount(easeOut * endValue);
-
-      if (progress < 1) {
-        requestAnimationFrame(animate);
-      }
-    };
-    animate();
-  }, [v, end, duration]);
-
-  const formatted = end.toString().includes('+')
-    ? `${Math.floor(count)}+`
-    : end.toString().includes('%')
-    ? `${Math.floor(count)}%`
-    : end.toString().includes('.')
-    ? count.toFixed(1)
-    : Math.floor(count);
-
-  return <div ref={ref}>{formatted}{suffix}</div>;
-}
-
-/* ── Rotating Text (soft crossfade through phrases) ── */
-function RotatingText({ phrases = [], interval = 3200, style = {} }) {
-  const [index, setIndex] = useState(0);
-  const [visible, setVisible] = useState(true);
-
-  useEffect(() => {
-    if (phrases.length < 2) return;
-    const timer = setInterval(() => {
-      setVisible(false);
-      setTimeout(() => {
-        setIndex((i) => (i + 1) % phrases.length);
-        setVisible(true);
-      }, 350);
-    }, interval);
-    return () => clearInterval(timer);
-  }, [phrases.length, interval]);
-
-  if (!phrases.length) return null;
-  return (
-    <span style={{
-      display: "inline-block",
-      opacity: visible ? 1 : 0,
-      transform: visible ? "translateY(0)" : "translateY(6px)",
-      transition: "opacity 0.35s ease, transform 0.35s ease",
-      ...style,
-    }}>
-      {phrases[index]}
-    </span>
-  );
-}
-
-/* ── Brand icon (emoji strings from the CMS render as line icons) ── */
-function BlinkEmoji({ emoji, size = 24, color = C.olive, style = {} }) {
-  return <EmojiIcon emoji={emoji} size={size} color={color} style={style} />;
-}
 
 /* ── Floating Tag (angled pill that hangs off image edges) ── */
 const bubbleColorOptions = [
@@ -196,29 +118,6 @@ function FloatingTag({ emoji, text, contentKey, index, field, style = {} }) {
   );
 }
 
-/* ── Bubble Tag (pill with emoji + text) ── */
-function BubbleTag({ emoji, text, bg = C.white, color = C.charcoal, style = {} }) {
-  return (
-    <span style={{
-      fontFamily: "'Rubik', sans-serif",
-      fontWeight: 600,
-      fontSize: 13,
-      color,
-      background: bg,
-      padding: "8px 18px",
-      borderRadius: 50,
-      display: "inline-flex",
-      alignItems: "center",
-      gap: 8,
-      border: `1px solid ${C.sand}`,
-      whiteSpace: "nowrap",
-      ...style,
-    }}>
-      <EmojiIcon emoji={emoji} size={16} color={C.olive} />{text}
-    </span>
-  );
-}
-
 /* ══════════════════════════════════════════════════════════════
    MARQUEE / INFINITE TICKER (CMS-editable text)
    ══════════════════════════════════════════════════════════════ */
@@ -306,78 +205,46 @@ function Marquee({ text, contentKey, bg = C.charcoal, color = C.sand, speed = 60
 
 /* ══════════════════════════════════════════════════════════════
    SCRIPT LABEL (brand: Georgia italic accent)
-   ══════════════════════════════════════════════════════════════ */
-function ScriptLabel({ children, color = C.olive, size = 20, style = {} }) {
-  return (
-    <span style={{ fontFamily: "'Fraunces', Georgia, serif", fontStyle: "italic", fontSize: size, color, fontWeight: 400, letterSpacing: "0.3px", display: "block", marginBottom: 8, ...style }}>{children}</span>
-  );
-}
 
 /* ══════════════════════════════════════════════════════════════
    HORIZONTAL SCROLL CAROUSEL (PLM pattern)
-   ══════════════════════════════════════════════════════════════ */
-function HorizontalScroll({ children, gap = 20 }) {
-  const ref = useRef(null);
-  return (
-    <div style={{ position: "relative" }}>
-      <div ref={ref} style={{
-        display: "flex", gap, overflowX: "auto", scrollSnapType: "x proximity",
-        padding: "8px 0 20px", scrollbarWidth: "thin", scrollbarColor: `${C.sand} transparent`,
-        WebkitOverflowScrolling: "touch",
-        scrollBehavior: "smooth",
-        willChange: "scroll-position"
-      }}>
-        {children}
-      </div>
-    </div>
-  );
-}
 
 /* ══════════════════════════════════════════════════════════════
    REUSABLE COMPONENTS
-   ══════════════════════════════════════════════════════════════ */
-function Btn({ children, variant = "primary", onClick, style = {} }) {
-  const btnRef = useRef(null);
-  const [magnetic, setMagnetic] = useState({ x: 0, y: 0 });
 
-  const handleMouseMove = useCallback((e) => {
-    if (!btnRef.current) return;
-    const rect = btnRef.current.getBoundingClientRect();
-    const x = e.clientX - rect.left - rect.width / 2;
-    const y = e.clientY - rect.top - rect.height / 2;
-    const distance = Math.sqrt(x * x + y * y);
-    const maxDistance = 80;
+/* A CMS field shown with that markup; plain editable text in edit mode */
+function DecoratedText({ contentKey, decorate, as: Tag = "span", ...rest }) {
+  const { value, isEditing } = useContent(contentKey);
+  if (isEditing) return <EditableText contentKey={contentKey} as={Tag} {...rest} />;
+  return <Tag {...rest} dangerouslySetInnerHTML={{ __html: decorate(String(value ?? "")) }} />;
+}
 
-    if (distance < maxDistance) {
-      const strength = (1 - distance / maxDistance) * 0.3;
-      setMagnetic({ x: x * strength, y: y * strength });
-    }
-  }, []);
+function DecoratedArrayText({ contentKey, index, field, decorate, as: Tag = "span", ...rest }) {
+  const { value, isEditing } = useContent(contentKey);
+  if (isEditing) return <EditableArrayText contentKey={contentKey} index={index} field={field} as={Tag} {...rest} />;
+  return <Tag {...rest} dangerouslySetInnerHTML={{ __html: decorate(String(value?.[index]?.[field] ?? "")) }} />;
+}
 
-  const handleMouseLeave = useCallback(() => {
-    setMagnetic({ x: 0, y: 0 });
-  }, []);
+/* The signature moment: the hero script line rewrites itself every 3s (static under reduced motion) */
+function RotatingPhrase({ phrases }) {
+  const [step, setStep] = useState(0);
+  const [leaving, setLeaving] = useState(false);
 
-  const base = { fontFamily: "'Rubik', sans-serif", fontWeight: 600, fontSize: 12, border: "none", borderRadius: 100, padding: "13px 32px", cursor: "pointer", transition: "all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)", display: "inline-flex", alignItems: "center", gap: 8, textDecoration: "none", letterSpacing: "1px", textTransform: "uppercase", position: "relative" };
-  const v = {
-    primary: { ...base, background: C.olive, color: C.cream, border: `2px solid ${C.olive}` },
-    sand:    { ...base, background: C.sand, color: C.charcoal, border: `2px solid ${C.sand}` },
-    outline: { ...base, background: "transparent", color: C.olive, border: `2px solid ${C.olive}` },
-    ocean:   { ...base, background: C.olive, color: C.white, border: `2px solid ${C.olive}` },
-    yellow:  { ...base, background: C.butter, color: C.charcoal, border: `2px solid ${C.butter}` },
-    white:   { ...base, background: C.white, color: C.charcoal, border: `2px solid ${C.charcoal}` },
-  };
+  useEffect(() => {
+    if (phrases.length < 2 || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const timer = setInterval(() => { if (!document.hidden) setLeaving(true); }, 3200);
+    return () => clearInterval(timer);
+  }, [phrases.length]);
 
+  // The next phrase comes in once the old one has finished sliding out
+  const next = () => { if (leaving) { setStep((s) => s + 1); setLeaving(false); } };
+
+  if (!phrases.length) return null;
+  const state = leaving ? " is-out" : step > 0 ? " is-in" : "";
   return (
-    <button
-      ref={btnRef}
-      onClick={onClick}
-      onMouseMove={handleMouseMove}
-      onMouseEnter={e => { e.currentTarget.style.transform = `translate(${magnetic.x}px, ${magnetic.y}px) translateY(-2px)`; e.currentTarget.style.boxShadow = "0 8px 20px rgba(0,0,0,0.12)"; }}
-      onMouseLeave={e => { handleMouseLeave(); e.currentTarget.style.transform = "translate(0, 0)"; e.currentTarget.style.boxShadow = "none"; }}
-      style={{ ...v[variant], transform: `translate(${magnetic.x}px, ${magnetic.y}px)`, ...style }}>
-      {children}
-    </button>
+    <span className="sb-rotator">
+      <span key={step} className={`sb-rotator-word${state}`} onAnimationEnd={next}>{phrases[step % phrases.length]}</span>
+    </span>
   );
 }
 
@@ -467,181 +334,6 @@ function EditableBtn({ contentKey, variant = "primary", defaultLabel = "button",
   );
 }
 
-function SectionWrap({ children, bg, bgImage, py = "80px", style = {}, sectionKey }) {
-  const { getContent, updateContent, isEditing } = useCMS();
-
-  // CMS-controlled background (overrides props when set)
-  const bgType = sectionKey ? getContent(`style.section.${sectionKey}.bgType`) : null;
-  const bgValue = sectionKey ? getContent(`style.section.${sectionKey}.bgValue`) : null;
-  const bgOverlayOpacity = sectionKey ? (getContent(`style.section.${sectionKey}.bgOverlayOpacity`) ?? 0.85) : 0.85;
-
-  const solidColorOptions = [
-    { label: "cream", value: C.cream },
-    { label: "charcoal", value: C.charcoal },
-    { label: "sand", value: C.sand },
-    { label: "olive", value: C.olive },
-    { label: "butter", value: C.butter },
-    { label: "blue", value: C.somethingBlue },
-    { label: "earth", value: C.motherEarth },
-  ];
-
-  const gridOptions = [
-    { label: "cream grid", value: "gridBgWhite" },
-    { label: "sand grid", value: "gridBgSand" },
-    { label: "blue grid", value: "gridBgOcean" },
-  ];
-
-  const gridMap = { gridBgWhite, gridBgSand, gridBgOcean };
-
-  // Resolved background
-  let resolvedBg = bgImage || bg || C.cream;
-
-  if (bgType === "solid" && bgValue) resolvedBg = bgValue;
-  else if (bgType === "grid" && bgValue) resolvedBg = gridMap[bgValue] || resolvedBg;
-  else if (bgType === "image" && bgValue) {
-    // Use CSS background-attachment for native parallax (degrades gracefully on mobile)
-    resolvedBg = `url(${bgValue}) center / cover fixed`;
-  }
-
-  return (
-    <section style={{ background: resolvedBg, padding: `${py} clamp(20px, 5vw, 56px)`, overflowX: "hidden", position: "relative", ...style }}>
-      {/* Color overlay when image bg is set */}
-      {bgType === "image" && bgValue && (
-        <div style={{ position: "absolute", inset: 0, zIndex: 0, background: `rgba(253,250,244,${bgOverlayOpacity})`, pointerEvents: "none" }} />
-      )}
-
-      {/* Section background control — edit mode only */}
-      {isEditing && sectionKey && (
-        <SectionBgControl
-          sectionKey={sectionKey}
-          bgType={bgType}
-          bgValue={bgValue}
-          bgOverlayOpacity={bgOverlayOpacity}
-          solidColorOptions={solidColorOptions}
-          gridOptions={gridOptions}
-          updateContent={updateContent}
-        />
-      )}
-
-      <div style={{ maxWidth: 1140, margin: "0 auto", position: "relative", zIndex: 1 }}>{children}</div>
-    </section>
-  );
-}
-
-function SectionBgControl({ sectionKey, bgType, bgValue, bgOverlayOpacity, solidColorOptions, gridOptions, updateContent }) {
-  const [open, setOpen] = useState(false);
-  const [uploading, setUploading] = useState(false);
-
-  return (
-    <div data-editor-panel style={{ position: "absolute", top: 8, right: 8, zIndex: 100 }}>
-      <button
-        onClick={() => setOpen(!open)}
-        style={{ fontFamily: "'Rubik', sans-serif", fontSize: 10, fontWeight: 600, padding: "4px 10px", borderRadius: 20, background: "rgba(28,28,28,0.7)", color: "#fff", border: "none", cursor: "pointer", backdropFilter: "blur(8px)" }}
-      >🎨 bg</button>
-      {open && (
-        <div style={{ position: "absolute", top: 30, right: 0, background: "rgba(28,28,28,0.97)", borderRadius: 12, padding: 16, zIndex: 200, width: 240, boxShadow: "0 16px 40px rgba(0,0,0,0.4)", border: "1px solid rgba(255,255,255,0.08)", backdropFilter: "blur(16px)" }}>
-          <p style={{ fontFamily: "'Rubik', sans-serif", fontSize: 11, fontWeight: 700, color: "rgba(255,255,255,0.5)", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: 10 }}>Background</p>
-
-          {/* Solid colors */}
-          <p style={{ fontFamily: "'Rubik', sans-serif", fontSize: 10, color: "rgba(255,255,255,0.4)", marginBottom: 6 }}>Solid Color</p>
-          <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 12 }}>
-            {solidColorOptions.map(opt => (
-              <button key={opt.value} title={opt.label} onClick={() => { updateContent(`style.section.${sectionKey}.bgType`, "solid"); updateContent(`style.section.${sectionKey}.bgValue`, opt.value); }} style={{ width: 24, height: 24, borderRadius: 6, background: opt.value, border: bgType === "solid" && bgValue === opt.value ? "2px solid #fff" : "1px solid rgba(255,255,255,0.2)", cursor: "pointer" }} />
-            ))}
-          </div>
-
-          {/* Grid patterns */}
-          <p style={{ fontFamily: "'Rubik', sans-serif", fontSize: 10, color: "rgba(255,255,255,0.4)", marginBottom: 6 }}>Grid Pattern</p>
-          <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 12 }}>
-            {gridOptions.map(opt => (
-              <button key={opt.value} onClick={() => { updateContent(`style.section.${sectionKey}.bgType`, "grid"); updateContent(`style.section.${sectionKey}.bgValue`, opt.value); }} style={{ fontFamily: "'Rubik', sans-serif", fontSize: 10, fontWeight: 600, padding: "4px 10px", borderRadius: 8, background: bgType === "grid" && bgValue === opt.value ? "#fff" : "rgba(255,255,255,0.1)", color: bgType === "grid" && bgValue === opt.value ? "#000" : "rgba(255,255,255,0.7)", border: "none", cursor: "pointer" }}>{opt.label}</button>
-            ))}
-          </div>
-
-          {/* Image parallax upload */}
-          <p style={{ fontFamily: "'Rubik', sans-serif", fontSize: 10, color: "rgba(255,255,255,0.4)", marginBottom: 6 }}>Image Parallax</p>
-          <label style={{ display: "block", fontFamily: "'Rubik', sans-serif", fontSize: 11, fontWeight: 600, color: bgType === "image" ? C.butter : "rgba(255,255,255,0.7)", background: bgType === "image" ? `${C.butter}20` : "rgba(255,255,255,0.08)", border: bgType === "image" ? `1px solid ${C.butter}40` : "1px solid rgba(255,255,255,0.1)", borderRadius: 8, padding: "6px 12px", cursor: uploading ? "wait" : "pointer", textAlign: "center", marginBottom: bgType === "image" ? 8 : 0 }}>
-            {uploading ? "Uploading…" : bgType === "image" ? "✓ image set (click to change)" : "Upload image"}
-            <input type="file" accept="image/*" style={{ display: "none" }} onChange={async (e) => {
-              const file = e.target.files?.[0]; if (!file) return;
-              setUploading(true);
-              try {
-                const { uploadImage } = await import("../supabase/storage");
-                const url = await uploadImage(file, `section.bg.${sectionKey}`);
-                updateContent(`style.section.${sectionKey}.bgType`, "image");
-                updateContent(`style.section.${sectionKey}.bgValue`, url);
-              } catch (err) { alert("Upload failed: " + err.message); }
-              finally { setUploading(false); e.target.value = ""; }
-            }} />
-          </label>
-
-          {/* Overlay opacity when image set */}
-          {bgType === "image" && bgValue && (
-            <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
-              <span style={{ fontFamily: "'Rubik', sans-serif", fontSize: 10, color: "rgba(255,255,255,0.5)", whiteSpace: "nowrap" }}>Overlay</span>
-              <input type="range" min={0} max={1} step={0.05} value={bgOverlayOpacity} onChange={e => updateContent(`style.section.${sectionKey}.bgOverlayOpacity`, parseFloat(e.target.value))} style={{ flex: 1, accentColor: C.butter }} />
-              <span style={{ fontFamily: "'Rubik', sans-serif", fontSize: 10, color: "rgba(255,255,255,0.5)", minWidth: 28 }}>{Math.round(bgOverlayOpacity * 100)}%</span>
-            </div>
-          )}
-
-          {/* Reset */}
-          <button onClick={() => { updateContent(`style.section.${sectionKey}.bgType`, null); updateContent(`style.section.${sectionKey}.bgValue`, null); setOpen(false); }} style={{ width: "100%", marginTop: 4, fontFamily: "'Rubik', sans-serif", fontSize: 10, color: "rgba(255,255,255,0.4)", background: "none", border: "none", cursor: "pointer", textAlign: "center", padding: "4px 0" }}>reset to default</button>
-        </div>
-      )}
-    </div>
-  );
-}
-
-// Process step brand colors (alternating angles: odd = left tilt, even = right tilt)
-const stepBrandColors = [C.butter, C.motherEarth, C.somethingBlue, C.olive, C.butter];
-const stepTextColors = [C.charcoal, C.white, C.charcoal, C.white, C.charcoal];
-const stepRotations = [-8, 6, -10, 7, -9]; // alternating left / right
-
-// Brand star SVG (4-pointed, filled) used as bullet/icon across all pages
-function BrandStar({ size = 16, color = C.olive, style = {} }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill={color} style={{ flexShrink: 0, ...style }}>
-      <path d="M12 2 L13.8 9.2 L21 12 L13.8 14.8 L12 22 L10.2 14.8 L3 12 L10.2 9.2 Z" />
-    </svg>
-  );
-}
-
-function ProcessStep({ num, text, total }) {
-  const idx = (num - 1) % stepBrandColors.length;
-  const bgColor = stepBrandColors[idx];
-  const textColor = stepTextColors[idx];
-  const rotation = stepRotations[idx];
-  const isLast = num === total;
-
-  return (
-    <div style={{ padding: "28px 0 20px", position: "relative" }}>
-      <div style={{ display: "flex", gap: 16, alignItems: "flex-start" }}>
-        <div style={{
-          width: 40,
-          height: 40,
-          borderRadius: 10,
-          background: bgColor,
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          fontFamily: "'Rubik', sans-serif",
-          fontWeight: 700,
-          fontSize: 14,
-          color: textColor,
-          flexShrink: 0,
-          transform: `rotate(${rotation}deg)`,
-          boxShadow: "0 3px 10px rgba(0,0,0,0.12)",
-        }}>
-          {String(num).padStart(2, "0")}
-        </div>
-        <p style={{ fontFamily: "'Rubik', sans-serif", fontSize: 15, color: C.body, lineHeight: 1.75, margin: 0 }}>{text}</p>
-      </div>
-      {!isLast && (
-        <div style={{ height: 2, background: C.sand, opacity: 0.6, marginTop: 24, borderRadius: 2 }} />
-      )}
-    </div>
-  );
-}
 
 function FAQAccordion({ faqs, contentKey }) {
   const { update, isEditing } = useContent(contentKey || "__none__");
@@ -682,7 +374,7 @@ function FAQAccordion({ faqs, contentKey }) {
                 {contentKey ? <EditableArrayText contentKey={contentKey} index={i} field="q" as="span" /> : faq.q}
               </span>
               <span style={{
-                fontFamily: "system-ui",
+                fontFamily: "'Rubik', sans-serif",
                 fontSize: 20,
                 color: C.olive,
                 flexShrink: 0,
@@ -782,32 +474,6 @@ function EditableTagList({ contentKey, items = [], tagBg = C.butter, tagColor = 
   );
 }
 
-function TwoColFit({ perfect, notFit }) {
-  return (
-    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 260px), 1fr))", gap: 20 }}>
-      <div style={{ background: C.white, borderRadius: 16, padding: "28px 24px", border: `1px solid ${C.sand}`, height: "100%", boxShadow: "0 1px 2px rgba(44,44,40,0.03), 0 6px 16px rgba(44,44,40,0.05)" }}>
-        <h4 style={{ fontFamily: "'Rubik', sans-serif", fontWeight: 700, fontSize: 15, color: C.charcoal, margin: "0 0 16px" }}>perfect if you:</h4>
-        {perfect.map((p, i) => <div key={i} style={{ display: "flex", gap: 10, marginBottom: 8, fontFamily: "'Rubik', sans-serif", fontSize: 14, color: C.body, lineHeight: 1.55 }}><BrandStar size={14} color={C.olive} style={{ marginTop: 2 }} />{p}</div>)}
-      </div>
-      <div style={{ background: C.cream, borderRadius: 16, padding: "28px 24px", border: `1px solid ${C.sand}`, height: "100%" }}>
-        <h4 style={{ fontFamily: "'Rubik', sans-serif", fontWeight: 700, fontSize: 15, color: C.charcoal, margin: "0 0 16px" }}>not a fit if you:</h4>
-        {notFit.map((p, i) => <div key={i} style={{ display: "flex", gap: 10, marginBottom: 8, fontFamily: "'Rubik', sans-serif", fontSize: 14, color: C.warmTan, lineHeight: 1.55 }}><span style={{ flexShrink: 0, color: C.warmTan }}>—</span>{p}</div>)}
-      </div>
-    </div>
-  );
-}
-
-function PullQuote({ quote, author, bg = C.charcoal }) {
-  return (
-    <FadeIn>
-      <div style={{ background: bg, borderRadius: 20, padding: "clamp(36px, 5vw, 56px)", textAlign: "center", margin: "0 auto", maxWidth: 800 }}>
-        <p style={{ fontFamily: "'Fraunces', Georgia, serif", fontStyle: "italic", fontSize: "clamp(24px, 3.5vw, 36px)", color: C.sand, lineHeight: 1.4, margin: "0 0 14px" }}>"{quote}"</p>
-        {author && <p style={{ fontFamily: "'Rubik', sans-serif", fontSize: 13, color: `${C.sand}88`, margin: 0 }}>— {author}</p>}
-      </div>
-    </FadeIn>
-  );
-}
-
 /* ── Social Proof — parallax-style scroll-in with uploadable logos ── */
 function NewsletterForm() {
   useEffect(() => {
@@ -841,8 +507,5 @@ function NewsletterForm() {
 /* ── Nav button with hover effect ── */
 
 export {
-  FadeIn, AnimatedCounter, RotatingText, BlinkEmoji, FloatingTag, BubbleTag,
-  Marquee, ScriptLabel, HorizontalScroll, Btn, EditableBtn, SectionWrap,
-  SectionBgControl, BrandStar, ProcessStep, FAQAccordion, EditableTagList,
-  TwoColFit, PullQuote, NewsletterForm, PageLink,
+  FloatingTag, Marquee, EditableBtn, FAQAccordion, EditableTagList, NewsletterForm, PageLink, DecoratedText, DecoratedArrayText, RotatingPhrase,
 };

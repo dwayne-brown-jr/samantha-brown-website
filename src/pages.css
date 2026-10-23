@@ -1,0 +1,116 @@
+/* ══════════════════════════════════════════════════════════════
+   INNER PAGES — services, service details, about, resources, contact
+   Builds on home.css (tokens, sb-* type, buttons, cards, about layout)
+   so every page reads as the same sunlit notebook.
+   ══════════════════════════════════════════════════════════════ */
+
+/* Page opening: script kicker, big lowercase heading, one supporting line */
+.sb-page-hero { padding: calc(var(--header-h) + var(--s8)) 0 var(--s8); border-bottom: 1px solid var(--line); }
+.sb-page-hero .sb-script { margin-bottom: var(--s3); }
+.sb-page-hero h1 { max-width: 18ch; margin-bottom: var(--s4); }
+.sb-home .sb-page-hero .sb-lede { margin-bottom: 0; }
+.sb-page-hero .sb-actions { margin-top: var(--s6); }
+.sb-back { display: inline-block; margin-bottom: var(--s5); font-size: .9375rem; font-weight: 500; color: var(--muted); text-decoration: none; }
+@media (hover: hover) { .sb-home a.sb-back:hover { color: var(--olive); } }
+.sb-jump { display: flex; flex-wrap: wrap; gap: var(--s3); margin-top: var(--s6); }
+
+/* Sections */
+.sb-band { padding: var(--s9) 0; }
+.sb-band + .sb-band { border-top: 1px solid var(--line); }
+.sb-band.is-paper { background: var(--paper); }
+.sb-band .sb-section-head { margin-bottom: var(--s6); }
+/* Narrow reading column that still starts at the same left edge as wide sections */
+.sb-narrow > * { max-width: 760px; }
+.sb-narrow > .sb-steps, .sb-narrow > .sb-ticks { max-width: 760px; }
+.sb-section-head h2.is-small { font-size: clamp(1.75rem, 1.3rem + 1.4vw, 2.4rem); }
+
+/* Offer cards with a variable column count (home's .sb-offers is three across) */
+.sb-offers.is-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.sb-offers.is-flush { margin-bottom: 0; }
+
+/* Plain lists with the olive tick, from the home page's "tired of" list */
+.sb-home .sb-ticks.is-compact li { padding: var(--s3) 0 var(--s3) var(--s7); }
+
+/* Numbered process: the order is the information */
+.sb-steps { list-style: none; counter-reset: step; margin: 0; padding: 0; display: grid; gap: var(--s5); }
+.sb-steps li { counter-increment: step; position: relative; padding-left: 56px; min-height: 36px; }
+.sb-steps li::before { content: counter(step); position: absolute; left: 0; top: -4px; width: 36px; height: 36px; border-radius: 50%; border: 1.5px solid var(--olive); color: var(--olive); font: 600 .9375rem/33px "Rubik", sans-serif; text-align: center; background: var(--bg); }
+.sb-steps li + li::after { content: ""; position: absolute; left: 17.5px; top: calc(-1 * var(--s5) + 4px); height: calc(var(--s5) - 6px); border-left: 1.5px dashed var(--line); }
+
+/* Fit check: "perfect if" on olive, "not a fit" on paper (the contrast pair) */
+.sb-fit-grid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--s5); }
+.sb-fit-grid > div { border-radius: var(--radius); padding: var(--s6); }
+.sb-home .sb-fit-grid h3 { font-size: 1.25rem; margin-bottom: var(--s4); }
+.sb-fit-grid ul { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--s3); }
+.sb-fit-grid li { position: relative; padding-left: var(--s6); }
+.sb-fit-yes { background: var(--olive); color: #fff; }
+.sb-fit-yes li::before { content: ""; position: absolute; left: 2px; top: .55em; width: 10px; height: 10px; border-radius: 50%; background: var(--yellow); }
+.sb-fit-no { background: var(--paper); border: 1px solid var(--line); color: var(--muted); }
+.sb-fit-no li::before { content: "×"; position: absolute; left: 0; top: -1px; font-weight: 700; color: #8A6F5C; }
+
+/* FAQ sits on paper; the accordion component keeps its own behaviour */
+.sb-faq { max-width: 820px; }
+
+/* "What makes this different" and pull quotes */
+.sb-home .sb-story-block { max-width: 62ch; font-size: clamp(1.15rem, 1.05rem + .4vw, 1.375rem); line-height: 1.55; }
+.sb-quote-band { padding: var(--s9) 0; background: var(--ink); color: var(--bg); }
+.sb-quote-band blockquote { margin: 0; max-width: 30ch; font-family: "Fraunces", Georgia, serif; font-style: italic; font-size: clamp(1.75rem, 1.3rem + 1.6vw, 2.6rem); line-height: 1.25; }
+.sb-quote-band figcaption { margin-top: var(--s5); color: #C9C3B4; font-size: .9375rem; }
+.sb-quote-band figcaption::before { content: "— "; }
+
+/* Closing call to action, the cabana club's peach wash */
+.sb-cta-band { padding: var(--s9) 0; background: linear-gradient(180deg, var(--bg), var(--peach) 140%); }
+.sb-cta-band h2 { margin-bottom: var(--s4); max-width: 20ch; }
+.sb-cta-band .sb-script { margin-bottom: var(--s6); }
+
+/* About page */
+.sb-about-hero { padding: calc(var(--header-h) + var(--s8)) 0 var(--s9); }
+.sb-about-hero .sb-about-grid { grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); }
+.sb-about-hero .sb-about-photo .sb-ph { transform: rotate(-1.5deg); }
+.sb-about-hero h1 { margin-bottom: var(--s4); }
+.sb-about-hero .sb-hero-script { min-height: 1.4em; margin-bottom: var(--s5); font-family: "Fraunces", Georgia, serif; font-style: italic; color: var(--olive); font-size: clamp(1.35rem, 1.1rem + .8vw, 1.9rem); line-height: 1.3; }
+.sb-about-hero.is-solo .sb-about-grid { grid-template-columns: minmax(0, 760px); }
+.sb-beliefs { display: grid; grid-template-columns: 1fr 1fr; gap: var(--s8) var(--s9); }
+.sb-belief .sb-stamp-tag { display: inline-block; margin-bottom: var(--s3); padding: 4px 12px; border: 1.5px dashed var(--olive); border-radius: 999px; color: var(--olive); font-size: .8125rem; font-weight: 600; }
+.sb-home .sb-belief h3 { font-size: clamp(1.5rem, 1.2rem + 1vw, 2.1rem); margin-bottom: var(--s3); }
+.sb-belief h3 i { font-family: "Fraunces", Georgia, serif; font-style: italic; font-weight: 400; color: var(--olive); letter-spacing: 0; }
+.sb-home .sb-belief p { color: var(--muted); }
+/* A heading set as a script line (when the label is the whole heading) */
+.sb-home h2.sb-script { font-weight: 400; letter-spacing: 0; line-height: 1.35; font-size: clamp(1.4rem, 1.2rem + .6vw, 1.75rem); text-wrap: pretty; }
+.sb-chips { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: var(--s3); }
+.sb-chips li { display: inline-flex; align-items: center; gap: 10px; padding: 10px 18px; border-radius: 999px; background: var(--paper); border: 1px solid var(--line); font-size: .9375rem; }
+.sb-chips li svg { color: var(--olive); flex: none; }
+
+/* Resources: newsletter + toolkit */
+.sb-tools { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--s5); }
+.sb-tools > div { min-width: 0; }
+.sb-tool { flex: 1; display: grid; grid-template-rows: auto 1fr; border-radius: var(--radius); overflow: hidden; background: var(--paper); border: 1px solid var(--line); }
+.sb-tool-icon { display: grid; place-items: center; min-height: 104px; color: var(--ink); }
+.sb-tool-body { padding: var(--s5); }
+.sb-home .sb-tool-body h3 { font-size: 1.25rem; margin-bottom: var(--s2); }
+.sb-home .sb-tool-body p { margin: 0; color: var(--muted); font-size: .9375rem; }
+
+/* Contact */
+.sb-booking { border-radius: var(--radius); overflow: hidden; background: var(--paper); border: 1px solid var(--line); box-shadow: var(--shadow); }
+.sb-booking iframe { display: block; width: 1px; min-width: 100%; min-height: 640px; border: 0; }
+.sb-booking-empty { padding: var(--s7); }
+.sb-email-alt { margin-top: var(--s6); display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--s2) var(--s4); padding: var(--s5) var(--s6); border-radius: var(--radius); background: var(--paper); border: 1px solid var(--line); }
+.sb-home .sb-email-alt h3 { font-size: 1.125rem; margin: 0; }
+.sb-home .sb-email-alt p { margin: 0; color: var(--muted); }
+.sb-home .sb-email-alt a { font-weight: 600; color: var(--ink); }
+
+@media (max-width: 1100px) { .sb-tools { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 960px) {
+  .sb-page-hero { padding: calc(var(--header-h) + var(--s6)) 0 var(--s7); }
+  .sb-band, .sb-quote-band, .sb-cta-band { padding: var(--s8) 0; }
+  .sb-offers.is-cols-2 { grid-template-columns: 1fr; }
+  .sb-fit-grid, .sb-beliefs { grid-template-columns: 1fr; }
+  .sb-fit-grid > div { padding: var(--s5); }
+  .sb-beliefs { gap: var(--s7); }
+  .sb-about-hero { padding: calc(var(--header-h) + var(--s6)) 0 var(--s8); }
+  .sb-about-hero .sb-about-grid { grid-template-columns: 1fr; }
+  .sb-about-hero .sb-about-photo { order: -1; width: 70%; margin-inline: auto; }
+  .sb-booking iframe { min-height: 760px; }
+  .sb-email-alt { padding: var(--s5); }
+}
+@media (max-width: 520px) { .sb-tools { grid-template-columns: 1fr; } }

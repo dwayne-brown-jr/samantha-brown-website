@@ -1,184 +1,87 @@
-import { useRef } from "react";
-import { C, gridBgWhite } from "../theme";
 import { useCMS } from "../cms/useContent";
-import { EditableText, EditableArrayText, EditableArrayString } from "../cms/EditableText";
-import { EditableImage } from "../cms/EditableImage";
+import { EditableText, EditableArrayText } from "../cms/EditableText";
 import { EditableSection } from "../cms/EditableSection";
 import { EditableCardGroup } from "../cms/EditableCardGroup";
 import { EditableBlockList } from "../cms/EditableBlockList";
-import {
-  FadeIn, Marquee, ScriptLabel, SectionWrap, Btn,
-} from "../components/ui";
+import { PageLink } from "../components/ui";
+
+const blocksStyle = { width: "min(1200px, 100% - 2 * var(--gutter))", margin: "0 auto" };
+
+/* One group of offers (creators, corporate, brands): heading, intro, price cards in the home page's style.
+   Each card links to its own page; cards without one go to contact. */
+function OfferGroup({ id, groupKey, defaultNewItem, nav, paper, featureIndex }) {
+  const { getContent } = useCMS();
+  const cardsKey = `${groupKey}.cards`;
+  const count = (getContent(cardsKey) || []).length;
+  return (
+    <section className={`sb-band${paper ? " is-paper" : ""}`} id={id} aria-labelledby={`${id}-h`}>
+      <div className="sb-wrap">
+        <div className="sb-section-head">
+          <p className="sb-script"><EditableText contentKey={`${groupKey}.scriptLabel`} as="span" /></p>
+          <h2 id={`${id}-h`}><EditableText contentKey={`${groupKey}.heading`} as="span" /></h2>
+          <p className="sb-intro"><EditableText contentKey={`${groupKey}.body`} as="span" /></p>
+        </div>
+        <EditableCardGroup
+          contentKey={cardsKey}
+          gridClassName={`sb-offers is-flush${count === 2 ? " is-cols-2" : ""}`}
+          defaultNewItem={defaultNewItem}
+          renderCard={(c, i) => (
+            <article className={`sb-offer${i === featureIndex ? " sb-offer-feature" : ""}`} style={c.bg ? { background: c.bg } : undefined}>
+              <h3><EditableArrayText contentKey={cardsKey} index={i} field="title" /></h3>
+              <p className="sb-price"><EditableArrayText contentKey={cardsKey} index={i} field="price" /></p>
+              <p><EditableArrayText contentKey={cardsKey} index={i} field="body" /></p>
+              <p className="sb-offer-tag">{c.tag ? <EditableArrayText contentKey={cardsKey} index={i} field="tag" /> : null}</p>
+              <PageLink to={c.page || "contact"} nav={nav} className="sb-btn sb-btn-solid">
+                {c.cta ? <EditableArrayText contentKey={cardsKey} index={i} field="cta" /> : c.page && c.page !== "contact" ? "learn more" : "get in touch"}
+              </PageLink>
+            </article>
+          )}
+        />
+      </div>
+    </section>
+  );
+}
 
 function ServicesPage({ setPage }) {
   const { isEditing } = useCMS();
   const nav = (p) => { if (!isEditing) { setPage(p); window.scrollTo({ top: 0 }); } };
-  const foundersRef = useRef(null);
-  const corporateRef = useRef(null);
-  const brandsRef = useRef(null);
-
-  const scrollToSection = (ref) => {
-    ref.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-  };
+  const jump = (id) => document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
 
   return (
-    <>
-      <section style={{ background: gridBgWhite, padding: "clamp(80px, 18vw, 130px) clamp(20px, 5vw, 56px) 36px", textAlign: "center" }}>
-        <ScriptLabel size={22} style={{ textAlign: "center" }}><EditableText contentKey="services.hero.scriptLabel" as="span" /></ScriptLabel>
-        <h1 style={{ fontFamily: "'Rubik', sans-serif", fontWeight: 700, fontSize: "clamp(38px, 6vw, 64px)", color: C.charcoal, lineHeight: 1.02, margin: "0 0 12px", letterSpacing: "-1px" }}><EditableText contentKey="services.hero.heading" as="span" /></h1>
-        <p style={{ fontFamily: "'Rubik', sans-serif", fontSize: 16, color: C.body, maxWidth: 460, margin: "0 auto 28px" }}><EditableText contentKey="services.hero.subheading" as="span" /></p>
-        {/* Anchor navigation buttons */}
-        <div style={{ display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap" }}>
-          <Btn variant="sand" onClick={() => scrollToSection(foundersRef)} style={{ padding: "10px 22px", fontSize: 13 }}>for founders</Btn>
-          <Btn variant="outline" onClick={() => scrollToSection(corporateRef)} style={{ padding: "10px 22px", fontSize: 13 }}>for corporate teams</Btn>
-          <Btn variant="outline" onClick={() => scrollToSection(brandsRef)} style={{ padding: "10px 22px", fontSize: 13 }}>for brands</Btn>
+    <div className="sb-home sb-inner">
+      <section className="sb-page-hero">
+        <div className="sb-wrap">
+          <p className="sb-script"><EditableText contentKey="services.hero.scriptLabel" as="span" /></p>
+          <h1><EditableText contentKey="services.hero.heading" as="span" /></h1>
+          <p className="sb-lede"><EditableText contentKey="services.hero.subheading" as="span" /></p>
+          {/* Jump buttons scroll within the page (a #hash would switch pages in this app) */}
+          <div className="sb-jump">
+            <button type="button" className="sb-btn sb-btn-ghost sb-btn-small" onClick={() => jump("creators")}>for founders</button>
+            <button type="button" className="sb-btn sb-btn-ghost sb-btn-small" onClick={() => jump("corporate")}>for corporate teams</button>
+            <button type="button" className="sb-btn sb-btn-ghost sb-btn-small" onClick={() => jump("brands")}>for brands</button>
+          </div>
         </div>
       </section>
 
-      <Marquee text="systems that actually work · no hustle culture · revenue expansion" bg={C.sand} color={C.charcoal} />
-
-      {/* CREATORS */}
       <EditableSection contentKey="visibility.services.creators">
-      <div ref={foundersRef} style={{ scrollMarginTop: 80 }} />
-      <SectionWrap bg={C.cream} py="72px">
-        <FadeIn>
-          <ScriptLabel size={22}><EditableText contentKey="services.creators.scriptLabel" as="span" /></ScriptLabel>
-          <h2 style={{ fontFamily: "'Rubik', sans-serif", fontWeight: 700, fontSize: "clamp(26px, 3.5vw, 38px)", color: C.charcoal, margin: "0 0 12px" }}><EditableText contentKey="services.creators.heading" as="span" /></h2>
-          <p style={{ fontFamily: "'Rubik', sans-serif", fontSize: 15, color: C.body, lineHeight: 1.75, maxWidth: 680, marginBottom: 36 }}><EditableText contentKey="services.creators.body" as="span" /></p>
-        </FadeIn>
-
-        <EditableCardGroup
-          contentKey="services.creators.cards"
-          defaultNewItem={{ num: "04", title: "new service", price: "TBD", body: "description here", page: "contact", bg: "#F5E6DC" }}
-          gridStyle={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 280px), 1fr))", gap: 20, marginBottom: 40, alignItems: "stretch" }}
-          renderCard={(c, i) => {
-            const bgColors = [C.pinkSoft, C.oceanLight, C.lavenderLight];
-            return (
-              <div style={{ background: C.white, borderRadius: 20, overflow: "hidden", border: `1px solid ${C.sand}`, cursor: "pointer", transition: "transform 0.3s, box-shadow 0.3s", flex: 1, display: "flex", flexDirection: "column", boxShadow: "0 1px 2px rgba(44,44,40,0.03), 0 6px 16px rgba(44,44,40,0.05)" }}
-                onMouseEnter={e => { e.currentTarget.style.transform = "translateY(-6px)"; e.currentTarget.style.boxShadow = "0 2px 4px rgba(44,44,40,0.04), 0 14px 32px rgba(44,44,40,0.10)"; }}
-                onMouseLeave={e => { e.currentTarget.style.transform = "translateY(0)"; e.currentTarget.style.boxShadow = "0 1px 2px rgba(44,44,40,0.03), 0 6px 16px rgba(44,44,40,0.05)"; }}
-                onClick={() => nav(c.page || "contact")}>
-                <div style={{ background: c.bg || bgColors[i % 3], padding: "32px 24px 24px" }}>
-                  <span style={{ fontFamily: "'Rubik', sans-serif", fontWeight: 700, fontSize: "clamp(32px, 8vw, 48px)", color: `${C.charcoal}20` }}>{c.num}</span>
-                </div>
-                <div style={{ padding: "24px 22px 28px", display: "flex", flexDirection: "column", flex: 1 }}>
-                  <span style={{ fontFamily: "'Rubik', sans-serif", fontWeight: 600, fontSize: 12, color: C.oceanBlue, background: C.oceanLight, padding: "4px 14px", borderRadius: 50 }}>
-                    <EditableArrayText contentKey="services.creators.cards" index={i} field="price" as="span" />
-                  </span>
-                  <h3 style={{ fontFamily: "'Rubik', sans-serif", fontWeight: 700, fontSize: 18, color: C.charcoal, margin: "12px 0 10px" }}>
-                    <EditableArrayText contentKey="services.creators.cards" index={i} field="title" as="span" />
-                  </h3>
-                  <p style={{ fontFamily: "'Rubik', sans-serif", fontSize: 14, color: C.body, lineHeight: 1.65, margin: "0 0 16px" }}>
-                    <EditableArrayText contentKey="services.creators.cards" index={i} field="body" as="span" />
-                  </p>
-                  <span style={{ fontFamily: "'Rubik', sans-serif", fontWeight: 600, fontSize: 14, color: C.oceanBlue, marginTop: "auto" }}>learn more →</span>
-                </div>
-              </div>
-            );
-          }}
-        />
-
-      </SectionWrap>
+        <OfferGroup id="creators" groupKey="services.creators" nav={nav} featureIndex={1}
+          defaultNewItem={{ num: "04", title: "new service", price: "TBD", body: "description here", page: "contact", bg: "#F5E6DC" }} />
       </EditableSection>
+      <EditableBlockList contentKey="blocks.services.creators" style={blocksStyle} />
 
-      <EditableBlockList contentKey="blocks.services.creators" style={{ maxWidth: 1100, margin: "0 auto", padding: "0 clamp(20px, 5vw, 56px)" }} />
-
-      {/* CORPORATE */}
       <EditableSection contentKey="visibility.services.corporate">
-      <div ref={corporateRef} style={{ scrollMarginTop: 80 }} />
-      <SectionWrap bg={C.charcoal} py="72px">
-        <FadeIn>
-          <ScriptLabel size={22} color={C.sand}><EditableText contentKey="services.corporate.scriptLabel" as="span" /></ScriptLabel>
-          <h2 style={{ fontFamily: "'Rubik', sans-serif", fontWeight: 700, fontSize: "clamp(26px, 3.5vw, 38px)", color: C.cream, margin: "0 0 12px" }}><EditableText contentKey="services.corporate.heading" as="span" /></h2>
-          <p style={{ fontFamily: "'Rubik', sans-serif", fontSize: 15, color: `${C.sand}cc`, lineHeight: 1.75, maxWidth: 680, marginBottom: 36 }}><EditableText contentKey="services.corporate.body" as="span" /></p>
-        </FadeIn>
-
-        <EditableCardGroup
-          contentKey="services.corporate.cards"
-          defaultNewItem={{ num: "03", title: "new offering", price: "custom pricing", body: "description here", page: "corporate", bg: "#E8DDD4" }}
-          gridStyle={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 280px), 1fr))", gap: 20, marginBottom: 40, alignItems: "stretch" }}
-          renderCard={(c, i) => {
-            const bgColors = [C.pinkSoft, C.oceanLight, C.lavenderLight];
-            return (
-              <div style={{ background: C.white, borderRadius: 20, overflow: "hidden", border: `1px solid ${C.sand}`, cursor: "pointer", transition: "transform 0.3s, box-shadow 0.3s", flex: 1, display: "flex", flexDirection: "column", boxShadow: "0 1px 2px rgba(44,44,40,0.03), 0 6px 16px rgba(44,44,40,0.05)" }}
-                onMouseEnter={e => { e.currentTarget.style.transform = "translateY(-6px)"; e.currentTarget.style.boxShadow = "0 2px 4px rgba(44,44,40,0.04), 0 14px 32px rgba(44,44,40,0.10)"; }}
-                onMouseLeave={e => { e.currentTarget.style.transform = "translateY(0)"; e.currentTarget.style.boxShadow = "0 1px 2px rgba(44,44,40,0.03), 0 6px 16px rgba(44,44,40,0.05)"; }}
-                onClick={() => nav(c.page || "contact")}>
-                <div style={{ background: c.bg || bgColors[i % 3], padding: "32px 24px 24px" }}>
-                  <span style={{ fontFamily: "'Rubik', sans-serif", fontWeight: 700, fontSize: "clamp(32px, 8vw, 48px)", color: `${C.charcoal}20` }}>{c.num}</span>
-                </div>
-                <div style={{ padding: "24px 22px 28px", display: "flex", flexDirection: "column", flex: 1 }}>
-                  <span style={{ fontFamily: "'Rubik', sans-serif", fontWeight: 600, fontSize: 12, color: C.oceanBlue, background: C.oceanLight, padding: "4px 14px", borderRadius: 50 }}>
-                    <EditableArrayText contentKey="services.corporate.cards" index={i} field="price" as="span" />
-                  </span>
-                  <h3 style={{ fontFamily: "'Rubik', sans-serif", fontWeight: 700, fontSize: 18, color: C.charcoal, margin: "12px 0 10px" }}>
-                    <EditableArrayText contentKey="services.corporate.cards" index={i} field="title" as="span" />
-                  </h3>
-                  <p style={{ fontFamily: "'Rubik', sans-serif", fontSize: 14, color: C.body, lineHeight: 1.65, margin: "0 0 16px" }}>
-                    <EditableArrayText contentKey="services.corporate.cards" index={i} field="body" as="span" />
-                  </p>
-                  <span style={{ fontFamily: "'Rubik', sans-serif", fontWeight: 600, fontSize: 14, color: C.oceanBlue, marginTop: "auto" }}>learn more →</span>
-                </div>
-              </div>
-            );
-          }}
-        />
-
-      </SectionWrap>
+        <OfferGroup id="corporate" groupKey="services.corporate" nav={nav} paper
+          defaultNewItem={{ num: "03", title: "new offering", price: "custom pricing", body: "description here", page: "corporate", bg: "#E8DDD4" }} />
       </EditableSection>
+      <EditableBlockList contentKey="blocks.services.corporate" style={blocksStyle} />
 
-      <EditableBlockList contentKey="blocks.services.corporate" style={{ maxWidth: 1100, margin: "0 auto", padding: "0 clamp(20px, 5vw, 56px)" }} />
-
-      {/* BRANDS */}
       <EditableSection contentKey="visibility.services.brands">
-      <div ref={brandsRef} style={{ scrollMarginTop: 80 }} />
-      <SectionWrap bg={C.lavenderLight} py="72px">
-        <FadeIn>
-          <ScriptLabel size={22} color={C.oceanBlue}><EditableText contentKey="services.brands.scriptLabel" as="span" /></ScriptLabel>
-          <h2 style={{ fontFamily: "'Rubik', sans-serif", fontWeight: 700, fontSize: "clamp(26px, 3.5vw, 38px)", color: C.charcoal, margin: "0 0 12px" }}><EditableText contentKey="services.brands.heading" as="span" /></h2>
-          <p style={{ fontFamily: "'Rubik', sans-serif", fontSize: 15, color: C.body, lineHeight: 1.75, maxWidth: 680, marginBottom: 36 }}><EditableText contentKey="services.brands.body" as="span" /></p>
-        </FadeIn>
-
-        <EditableCardGroup
-          contentKey="services.brands.cards"
-          defaultNewItem={{ num: "04", title: "new partnership", price: "inquire", body: "description here", page: "contact", bg: "#F5E6DC" }}
-          gridStyle={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 280px), 1fr))", gap: 20, marginBottom: 40, alignItems: "stretch" }}
-          renderCard={(c, i) => {
-            const bgColors = [C.pinkSoft, C.oceanLight, C.lavenderLight];
-            return (
-              <div style={{ background: C.white, borderRadius: 20, overflow: "hidden", border: `1px solid ${C.sand}`, cursor: "pointer", transition: "transform 0.3s, box-shadow 0.3s", flex: 1, display: "flex", flexDirection: "column", boxShadow: "0 1px 2px rgba(44,44,40,0.03), 0 6px 16px rgba(44,44,40,0.05)" }}
-                onMouseEnter={e => { e.currentTarget.style.transform = "translateY(-6px)"; e.currentTarget.style.boxShadow = "0 2px 4px rgba(44,44,40,0.04), 0 14px 32px rgba(44,44,40,0.10)"; }}
-                onMouseLeave={e => { e.currentTarget.style.transform = "translateY(0)"; e.currentTarget.style.boxShadow = "0 1px 2px rgba(44,44,40,0.03), 0 6px 16px rgba(44,44,40,0.05)"; }}
-                onClick={() => nav(c.page || "contact")}>
-                <div style={{ background: c.bg || bgColors[i % 3], padding: "32px 24px 24px" }}>
-                  <span style={{ fontFamily: "'Rubik', sans-serif", fontWeight: 700, fontSize: "clamp(32px, 8vw, 48px)", color: `${C.charcoal}20` }}>{c.num}</span>
-                </div>
-                <div style={{ padding: "24px 22px 28px", display: "flex", flexDirection: "column", flex: 1 }}>
-                  <span style={{ fontFamily: "'Rubik', sans-serif", fontWeight: 600, fontSize: 12, color: C.oceanBlue, background: C.oceanLight, padding: "4px 14px", borderRadius: 50 }}>
-                    <EditableArrayText contentKey="services.brands.cards" index={i} field="price" as="span" />
-                  </span>
-                  <h3 style={{ fontFamily: "'Rubik', sans-serif", fontWeight: 700, fontSize: 18, color: C.charcoal, margin: "12px 0 10px" }}>
-                    <EditableArrayText contentKey="services.brands.cards" index={i} field="title" as="span" />
-                  </h3>
-                  <p style={{ fontFamily: "'Rubik', sans-serif", fontSize: 14, color: C.body, lineHeight: 1.65, margin: "0 0 16px" }}>
-                    <EditableArrayText contentKey="services.brands.cards" index={i} field="body" as="span" />
-                  </p>
-                  <span style={{ fontFamily: "'Rubik', sans-serif", fontWeight: 600, fontSize: 14, color: C.oceanBlue, marginTop: "auto" }}>learn more →</span>
-                </div>
-              </div>
-            );
-          }}
-        />
-
-      </SectionWrap>
+        <OfferGroup id="brands" groupKey="services.brands" nav={nav}
+          defaultNewItem={{ num: "04", title: "new partnership", price: "inquire", body: "description here", page: "contact", bg: "#F5E6DC" }} />
       </EditableSection>
-
-      <EditableBlockList contentKey="blocks.services.brands" style={{ maxWidth: 1100, margin: "0 auto", padding: "0 clamp(20px, 5vw, 56px)" }} />
-    </>
+      <EditableBlockList contentKey="blocks.services.brands" style={blocksStyle} />
+    </div>
   );
 }
 
-/* ══════════════════════════════════════════════════════════════
-   SERVICE DETAIL PAGES (Audit, Implementation, Fractional, Corporate)
-   ══════════════════════════════════════════════════════════════ */
 export default ServicesPage;

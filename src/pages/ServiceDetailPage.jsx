@@ -1,123 +1,134 @@
-import { C, gridBgWhite } from "../theme";
+import { C } from "../theme";
 import { useCMS } from "../cms/useContent";
-import { EditableText, EditableArrayText, EditableArrayString } from "../cms/EditableText";
-import { EditableImage } from "../cms/EditableImage";
-import { EditableSection } from "../cms/EditableSection";
-import { EditableCardGroup } from "../cms/EditableCardGroup";
-import { EditableBlockList } from "../cms/EditableBlockList";
-import {
-  FadeIn, ScriptLabel, SectionWrap, BrandStar, ProcessStep, FAQAccordion,
-  EditableTagList, TwoColFit, PullQuote, EditableBtn,
-} from "../components/ui";
+import { EditableText, EditableArrayString } from "../cms/EditableText";
+import { FAQAccordion, EditableTagList, EditableBtn, PageLink } from "../components/ui";
 
+/* One page per offer (audit, implementation, fractional, corporate). Everything comes from
+   services.<key>.* (corporate uses services.corporate.detail.*); empty sections don't render. */
 function ServiceDetailPage({ setPage, serviceKey }) {
   const { getContent, isEditing } = useCMS();
   const nav = (p) => { if (!isEditing) { setPage(p); window.scrollTo({ top: 0 }); } };
   const p = serviceKey === "corporate" ? "services.corporate.detail" : `services.${serviceKey}`;
+  const list = (k) => getContent(`${p}.${k}`) || [];
 
-  const includes = getContent(p + ".includes") || [];
-  const timeline = getContent(p + ".timeline") || [];
-  const process = getContent(p + ".process") || [];
-  const fitPerfect = getContent(p + ".fit.perfect") || [];
-  const fitNotFit = getContent(p + ".fit.notFit") || [];
-  const hasFit = fitPerfect.length > 0 || fitNotFit.length > 0;
-  const faqs = getContent(p + ".faqs") || [];
-  const quoteText = getContent(p + ".quote.text");
-  const quoteAuthor = getContent(p + ".quote.author");
-  const price = getContent(p + ".price");
-  const different = getContent(p + ".different");
+  const includes = list("includes");
+  const timeline = list("timeline");
+  const process = list("process");
+  const fitPerfect = list("fit.perfect");
+  const fitNotFit = list("fit.notFit");
+  const faqs = list("faqs");
+  const quoteText = getContent(`${p}.quote.text`);
+  const price = getContent(`${p}.price`);
+  const different = getContent(`${p}.different`);
 
   return (
-    <>
-      <section style={{ background: gridBgWhite, padding: "clamp(80px, 18vw, 130px) clamp(20px, 5vw, 56px) clamp(32px, 8vw, 56px)", textAlign: "center" }}>
-        {price && <span style={{ fontFamily: "'Rubik', sans-serif", fontWeight: 600, fontSize: 13, color: C.white, background: C.oceanBlue, padding: "6px 20px", borderRadius: 50, display: "inline-block", marginBottom: 16 }}>{price}</span>}
-        <h1 style={{ fontFamily: "'Rubik', sans-serif", fontWeight: 700, fontSize: "clamp(30px, 5vw, 52px)", color: C.charcoal, lineHeight: 1.05, margin: "0 0 8px", letterSpacing: "-0.8px" }}><EditableText contentKey={p + ".title"} as="span" /></h1>
-        <p style={{ fontFamily: "'Fraunces', Georgia, serif", fontStyle: "italic", fontSize: 20, color: C.warmTan }}><EditableText contentKey={p + ".subtitle"} as="span" /></p>
+    <div className="sb-home sb-inner">
+      <section className="sb-page-hero">
+        <div className="sb-wrap">
+          <PageLink to="services" nav={nav} className="sb-back">← all services</PageLink>
+          {(price || isEditing) && <p className="sb-script"><EditableText contentKey={`${p}.price`} as="span" /></p>}
+          <h1><EditableText contentKey={`${p}.title`} as="span" /></h1>
+          <p className="sb-lede"><EditableText contentKey={`${p}.subtitle`} as="span" /></p>
+          <div className="sb-actions">
+            <EditableBtn contentKey={`${p}.cta`} className="sb-btn sb-btn-solid" defaultLabel="work with me →" defaultLink="contact" nav={nav} />
+          </div>
+        </div>
       </section>
 
-      <SectionWrap bg={C.charcoal} py="56px">
-        <FadeIn>
-          <div style={{ maxWidth: 700, margin: "0 auto" }}>
-            <ScriptLabel color={C.sand}>the problem</ScriptLabel>
-            <p style={{ fontFamily: "'Rubik', sans-serif", fontSize: 15, color: `${C.sand}dd`, lineHeight: 1.75 }}><EditableText contentKey={p + ".problem"} as="span" /></p>
-          </div>
-        </FadeIn>
-      </SectionWrap>
+      <section className="sb-band" aria-labelledby="problem-h">
+        <div className="sb-wrap sb-narrow">
+          <div className="sb-section-head"><p className="sb-script"><EditableText contentKey="services.detail.problem.scriptLabel" as="span" /></p><h2 id="problem-h" className="is-small"><EditableText contentKey="services.detail.problem.heading" as="span" /></h2></div>
+          <p className="sb-story-block"><EditableText contentKey={`${p}.problem`} as="span" /></p>
+        </div>
+      </section>
 
-      <SectionWrap bg={C.white} py="64px" sectionKey={p + ".whatThis"}>
-        <FadeIn>
-          <div style={{ maxWidth: 700, margin: "0 auto" }}>
-            <ScriptLabel>what this is</ScriptLabel>
-            <p style={{ fontFamily: "'Rubik', sans-serif", fontSize: 15, color: C.body, lineHeight: 1.75, marginBottom: 20 }}><EditableText contentKey={p + ".whatIntro"} as="span" /></p>
-            {includes.map((t, i) => (
-              <div key={i} style={{ display: "flex", gap: 10, alignItems: "flex-start", marginBottom: 7 }}>
-                <BrandStar size={14} color={C.olive} style={{ marginTop: 3 }} />
-                <span style={{ fontFamily: "'Rubik', sans-serif", fontSize: 14, color: C.body, lineHeight: 1.6 }}><EditableArrayString contentKey={p + ".includes"} index={i} /></span>
-              </div>
-            ))}
-            <EditableTagList contentKey={p + ".timeline"} items={timeline} tagBg={C.butter} tagColor={C.charcoal} />
-          </div>
-        </FadeIn>
-      </SectionWrap>
+      <section className="sb-band is-paper" aria-labelledby="what-h">
+        <div className="sb-wrap sb-narrow">
+          <div className="sb-section-head"><p className="sb-script"><EditableText contentKey="services.detail.what.scriptLabel" as="span" /></p><h2 id="what-h" className="is-small"><EditableText contentKey="services.detail.what.heading" as="span" /></h2></div>
+          <p><EditableText contentKey={`${p}.whatIntro`} as="span" /></p>
+          {includes.length > 0 && (
+            <ul className="sb-ticks is-compact">
+              {includes.map((_, i) => <EditableArrayString key={i} contentKey={`${p}.includes`} index={i} as="li" />)}
+            </ul>
+          )}
+          {isEditing ? (
+            <EditableTagList contentKey={`${p}.timeline`} items={timeline} tagBg={C.butter} tagColor={C.charcoal} />
+          ) : timeline.length > 0 && (
+            <ul className="sb-stamps" aria-label="timeline and investment">
+              {timeline.map((t, i) => <li key={i} dangerouslySetInnerHTML={{ __html: t }} />)}
+            </ul>
+          )}
+        </div>
+      </section>
 
-      <SectionWrap bg={C.cream} py="64px" sectionKey={p + ".process"}>
-        <FadeIn>
-          <div style={{ maxWidth: 700, margin: "0 auto" }}>
-            <ScriptLabel>the process</ScriptLabel>
-            {process.map((t, i) => <ProcessStep key={i} num={i + 1} total={process.length} text={<EditableArrayString contentKey={p + ".process"} index={i} />} />)}
+      {process.length > 0 && (
+        <section className="sb-band" aria-labelledby="process-h">
+          <div className="sb-wrap sb-narrow">
+            <div className="sb-section-head"><p className="sb-script"><EditableText contentKey="services.detail.process.scriptLabel" as="span" /></p><h2 id="process-h" className="is-small"><EditableText contentKey="services.detail.process.heading" as="span" /></h2></div>
+            <ol className="sb-steps">
+              {process.map((_, i) => <EditableArrayString key={i} contentKey={`${p}.process`} index={i} as="li" />)}
+            </ol>
           </div>
-        </FadeIn>
-      </SectionWrap>
-
-      {hasFit && (
-        <SectionWrap bg={C.sandLight} py="64px">
-          <FadeIn>
-            <div style={{ maxWidth: 700, margin: "0 auto" }}>
-              <ScriptLabel>who this is for</ScriptLabel>
-              <TwoColFit perfect={fitPerfect} notFit={fitNotFit} />
-            </div>
-          </FadeIn>
-        </SectionWrap>
+        </section>
       )}
 
-      {faqs.length > 0 && (
-        <SectionWrap bg={C.white} py="64px">
-          <FadeIn>
-            <div style={{ maxWidth: 700, margin: "0 auto" }}>
-              <ScriptLabel>frequently asked</ScriptLabel>
-              <FAQAccordion faqs={faqs} contentKey={p + ".faqs"} />
+      {(fitPerfect.length > 0 || fitNotFit.length > 0) && (
+        <section className="sb-band" aria-labelledby="fit-h">
+          <div className="sb-wrap">
+            <div className="sb-section-head"><p className="sb-script"><EditableText contentKey="services.detail.fit.scriptLabel" as="span" /></p><h2 id="fit-h" className="is-small"><EditableText contentKey="services.detail.fit.heading" as="span" /></h2></div>
+            <div className="sb-fit-grid">
+              <div className="sb-fit-yes">
+                <h3><EditableText contentKey="services.detail.fitYes" as="span" /></h3>
+                <ul>{fitPerfect.map((_, i) => <EditableArrayString key={i} contentKey={`${p}.fit.perfect`} index={i} as="li" />)}</ul>
+              </div>
+              <div className="sb-fit-no">
+                <h3><EditableText contentKey="services.detail.fitNo" as="span" /></h3>
+                <ul>{fitNotFit.map((_, i) => <EditableArrayString key={i} contentKey={`${p}.fit.notFit`} index={i} as="li" />)}</ul>
+              </div>
             </div>
-          </FadeIn>
-        </SectionWrap>
+          </div>
+        </section>
       )}
 
       {different && (
-        <SectionWrap bg={C.white} py="64px">
-          <FadeIn>
-            <div style={{ maxWidth: 700, margin: "0 auto" }}>
-              <ScriptLabel>what makes this different</ScriptLabel>
-              <p style={{ fontFamily: "'Rubik', sans-serif", fontSize: 15, color: C.body, lineHeight: 1.75 }}><EditableText contentKey={p + ".different"} as="span" /></p>
-            </div>
-          </FadeIn>
-        </SectionWrap>
+        <section className="sb-band is-paper" aria-labelledby="different-h">
+          <div className="sb-wrap sb-narrow">
+            <div className="sb-section-head"><p className="sb-script"><EditableText contentKey="services.detail.different.scriptLabel" as="span" /></p><h2 id="different-h" className="is-small"><EditableText contentKey="services.detail.different.heading" as="span" /></h2></div>
+            <p className="sb-story-block"><EditableText contentKey={`${p}.different`} as="span" /></p>
+          </div>
+        </section>
       )}
 
       {quoteText && (
-        <SectionWrap bg={C.charcoal} py="56px">
-          <PullQuote quote={quoteText} author={quoteAuthor} bg={`${C.warmTan}15`} />
-        </SectionWrap>
+        <section className="sb-quote-band">
+          <figure className="sb-wrap" style={{ margin: "0 auto" }}>
+            <blockquote><EditableText contentKey={`${p}.quote.text`} as="span" /></blockquote>
+            <figcaption><EditableText contentKey={`${p}.quote.author`} as="span" /></figcaption>
+          </figure>
+        </section>
       )}
 
-      <SectionWrap bg={C.cream} py="48px">
-        <div style={{ textAlign: "center" }}><EditableBtn contentKey={p + ".cta"} variant="primary" defaultLabel="work with me →" defaultLink="contact" nav={nav} /></div>
-      </SectionWrap>
-    </>
+      {faqs.length > 0 && (
+        <section className="sb-band" aria-labelledby="faq-h">
+          <div className="sb-wrap sb-faq">
+            <div className="sb-section-head"><p className="sb-script"><EditableText contentKey="services.detail.faq.scriptLabel" as="span" /></p><h2 id="faq-h" className="is-small"><EditableText contentKey="services.detail.faq.heading" as="span" /></h2></div>
+            <FAQAccordion faqs={faqs} contentKey={`${p}.faqs`} />
+          </div>
+        </section>
+      )}
+
+      <section className="sb-cta-band">
+        <div className="sb-wrap">
+          <h2><EditableText contentKey={`${p}.title`} as="span" /></h2>
+          <p className="sb-script"><EditableText contentKey={`${p}.subtitle`} as="span" /></p>
+          <div className="sb-actions">
+            <EditableBtn contentKey={`${p}.cta`} className="sb-btn sb-btn-solid" defaultLabel="work with me →" defaultLink="contact" nav={nav} />
+            <PageLink to="services" nav={nav} className="sb-btn sb-btn-ghost">see all services</PageLink>
+          </div>
+        </div>
+      </section>
+    </div>
   );
 }
 
-/* Service configs removed — data now lives in contentSchema.js and is accessed via CMS */
-
-/* ══════════════════════════════════════════════════════════════
-   PAGE: ABOUT
-   ══════════════════════════════════════════════════════════════ */
 export default ServiceDetailPage;
