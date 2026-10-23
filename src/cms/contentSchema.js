@@ -8,7 +8,7 @@ export const defaultContent = {
   // ─── GLOBAL ───
   "global.siteName": "by samantha brown",
   "global.tagline": "built with intention, not perfection",
-  "global.copyright": "© 2025 by samantha brown | built with intention, not perfection",
+  "global.copyright": "© 2026 by samantha brown | built with intention, not perfection",
   "global.email": "sam@bysamanthabrown.com",
 
   // ─── NAV ───
