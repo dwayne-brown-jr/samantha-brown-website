@@ -176,6 +176,22 @@ export const defaultContent = {
     { num: "02", title: "brand collaborations", price: "inquire", body: "authentic partnerships with brands that align with my audience and values. content that converts because it's genuine, not performative.", page: "contact", bg: "#D6E8EC" },
     { num: "03", title: "ugc & content creation", price: "inquire", body: "user-generated content and social media content creation for brands looking for authentic, relatable content that actually resonates.", page: "contact", bg: "#EDE8F4" },
   ],
+  // ─── SERVICE DETAIL PAGES: section labels shared by all four ───
+  "services.detail.problem.scriptLabel": "sound familiar?",
+  "services.detail.problem.heading": "the problem",
+  "services.detail.what.scriptLabel": "what you get",
+  "services.detail.what.heading": "what this is",
+  "services.detail.process.scriptLabel": "step by step",
+  "services.detail.process.heading": "the process",
+  "services.detail.fit.scriptLabel": "honest fit check",
+  "services.detail.fit.heading": "who this is for",
+  "services.detail.different.scriptLabel": "the difference",
+  "services.detail.different.heading": "what makes this different",
+  "services.detail.faq.scriptLabel": "you might be wondering",
+  "services.detail.faq.heading": "frequently asked",
+  "services.detail.fitYes": "perfect if you:",
+  "services.detail.fitNo": "not a fit if you:",
+
   // ─── SERVICE DETAIL: AUDIT ───
   "services.audit.price": "$350",
   "services.audit.title": "the brand experience audit",

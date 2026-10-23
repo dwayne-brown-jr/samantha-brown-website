@@ -7,6 +7,7 @@ import { SelectionOverlay } from "./cms/SelectionOverlay";
 import { PropertyPanel } from "./cms/PropertyPanel";
 import { AdminLoginListener, AdminLoginModal } from "./cms/AdminAuth";
 import "./home.css";
+import "./pages.css";
 import { Nav, Footer, BackToTop } from "./components/layout";
 import HomePage from "./pages/HomePage";
 import ServicesPage from "./pages/ServicesPage";

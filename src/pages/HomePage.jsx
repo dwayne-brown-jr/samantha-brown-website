@@ -6,59 +6,12 @@ import { EditableImage } from "../cms/EditableImage";
 import { EditableSection } from "../cms/EditableSection";
 import { EditableCardGroup } from "../cms/EditableCardGroup";
 import { EditableBlockList } from "../cms/EditableBlockList";
-import { FloatingTag, Marquee, EditableBtn, NewsletterForm, PageLink } from "../components/ui";
+import { FloatingTag, Marquee, EditableBtn, NewsletterForm, PageLink, DecoratedText, DecoratedArrayText, RotatingPhrase } from "../components/ui";
+import { emphasizeCaps, scriptJoiner, markEnding } from "../decorate";
 
 /* ══════════════════════════════════════════════════════════════
    HOME HELPERS
    ══════════════════════════════════════════════════════════════ */
-
-/* Presentational markup added around a field's words (the words never change) */
-// Words typed in caps ("work FOR your life") become the italic accent
-const emphasizeCaps = (html) => html.split(/(<[^>]+>)/).map((part) => (part.startsWith("<") ? part : part.replace(/\b([A-Z]{2,})\b/g, "<em>$1</em>"))).join("");
-// "energy over hustle": the joining word is set in script
-const scriptJoiner = (html) => html.replace(/ (over|beats|&gt;|>) /, " <i>$1</i> ");
-// The last two words of a heading get the yellow highlighter
-const markEnding = (html) => {
-  const words = html.trim().split(/\s+/);
-  if (/<[^>]+>/.test(html) || words.length < 4) return html;
-  return `${words.slice(0, -2).join(" ")} <mark>${words.slice(-2).join(" ")}</mark>`;
-};
-
-/* A CMS field shown with that markup; plain editable text in edit mode */
-function DecoratedText({ contentKey, decorate, as: Tag = "span", ...rest }) {
-  const { value, isEditing } = useContent(contentKey);
-  if (isEditing) return <EditableText contentKey={contentKey} as={Tag} {...rest} />;
-  return <Tag {...rest} dangerouslySetInnerHTML={{ __html: decorate(String(value ?? "")) }} />;
-}
-
-function DecoratedArrayText({ contentKey, index, field, decorate, as: Tag = "span", ...rest }) {
-  const { value, isEditing } = useContent(contentKey);
-  if (isEditing) return <EditableArrayText contentKey={contentKey} index={index} field={field} as={Tag} {...rest} />;
-  return <Tag {...rest} dangerouslySetInnerHTML={{ __html: decorate(String(value?.[index]?.[field] ?? "")) }} />;
-}
-
-/* The signature moment: the hero script line rewrites itself every 3s (static under reduced motion) */
-function RotatingPhrase({ phrases }) {
-  const [step, setStep] = useState(0);
-  const [leaving, setLeaving] = useState(false);
-
-  useEffect(() => {
-    if (phrases.length < 2 || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-    const timer = setInterval(() => { if (!document.hidden) setLeaving(true); }, 3200);
-    return () => clearInterval(timer);
-  }, [phrases.length]);
-
-  // The next phrase comes in once the old one has finished sliding out
-  const next = () => { if (leaving) { setStep((s) => s + 1); setLeaving(false); } };
-
-  if (!phrases.length) return null;
-  const state = leaving ? " is-out" : step > 0 ? " is-in" : "";
-  return (
-    <span className="sb-rotator">
-      <span key={step} className={`sb-rotator-word${state}`} onAnimationEnd={next}>{phrases[step % phrases.length]}</span>
-    </span>
-  );
-}
 
 /* The "tired of" list is one field, each item after a → */
 function WelcomeList() {
